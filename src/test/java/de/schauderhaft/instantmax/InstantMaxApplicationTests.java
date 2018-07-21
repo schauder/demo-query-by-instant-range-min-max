@@ -11,6 +11,7 @@ import org.springframework.test.context.junit4.SpringRunner;
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
 import java.time.Instant;
+import java.util.Date;
 
 import static org.assertj.core.api.Assertions.*;
 
@@ -19,13 +20,15 @@ import static org.assertj.core.api.Assertions.*;
 @DataJpaTest
 public class InstantMaxApplicationTests {
 
-	public static final SimpleDateFormat FORMAT = new SimpleDateFormat(
+	static final SimpleDateFormat FORMAT = new SimpleDateFormat(
 			"DD.MM.YYY"
 	);
-	public static final Instant WAR = toInstant("28.7.1914");
-	public static final Instant FESTIVAL = toInstant("15.8.1969");
-	public static final Instant WALL = toInstant("9.11.1989");
-	public static final Instant DAY_AFTER = toInstant("21.1.2017");
+	static final Instant WAR = toInstant("28.7.1914");
+	static final Instant FESTIVAL = toInstant("15.8.1969");
+	static final Instant WALL = toInstant("9.11.1989");
+	static final Instant DAY_AFTER = toInstant("21.1.2017");
+	static final Instant CUSTOM_MIN = new Date(Long.MIN_VALUE / 2).toInstant();
+	static final Instant CUSTOM_MAX = new Date(Long.MAX_VALUE / 2).toInstant();
 	@Autowired
 	PersonRepository repository;
 
@@ -58,12 +61,17 @@ public class InstantMaxApplicationTests {
 
 	@Test
 	public void findAllByDateRange() {
-		assertThat(repository.findByDobBetween(WAR, DAY_AFTER)).extracting(Person::getName).containsExactlyInAnyOrder("Pa - Pa","Pa","Son");
+		assertThat(repository.findByDobBetween(WAR, DAY_AFTER)).extracting(Person::getName).containsExactlyInAnyOrder("Pa - Pa", "Pa", "Son");
 	}
 
 	@Test
 	public void findAllByMinMax() {
-		assertThat(repository.findByDobBetween(Instant.MIN, Instant.MAX)).extracting(Person::getName).containsExactlyInAnyOrder("Pa - Pa","Pa","Son");
+		assertThat(repository.findByDobBetween(Instant.MIN, Instant.MAX)).extracting(Person::getName).containsExactlyInAnyOrder("Pa - Pa", "Pa", "Son");
+	}
+
+	@Test
+	public void findAllByCustomMinMax() {
+		assertThat(repository.findByDobBetween(CUSTOM_MIN, CUSTOM_MAX)).extracting(Person::getName).containsExactlyInAnyOrder("Pa - Pa", "Pa", "Son");
 	}
 
 }
